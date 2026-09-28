@@ -1,0 +1,329 @@
+table Customers
+	lineageTag: 1f96f192-5976-45d1-89ae-e22dda035774
+
+	/// Total Customers
+	measure 'Total Customers' = COUNTROWS(Customers)
+		formatString: #,0
+		displayFolder: Overview
+		lineageTag: fbea410e-5033-4125-beb0-98ad70039ba9
+
+	/// Churned Customers
+	measure 'Churned Customers' = CALCULATE([Total Customers], KEEPFILTERS(Customers[Churn] = "Yes"))
+		formatString: #,0
+		displayFolder: Overview
+		lineageTag: 9939cb9b-577e-4a49-9ac6-c8701c050d7d
+
+	/// Retained Customers
+	measure 'Retained Customers' = CALCULATE([Total Customers], KEEPFILTERS(Customers[Churn] = "No"))
+		formatString: #,0
+		displayFolder: Overview
+		lineageTag: e87c8742-0b98-4e3b-87ef-0ac29aa6631e
+
+	/// Churn Rate
+	measure 'Churn Rate' = DIVIDE([Churned Customers], [Total Customers])
+		formatString: 0.00%
+		displayFolder: Overview
+		lineageTag: 91bbd204-8121-433a-b7e9-c8df58049bb9
+
+	/// Share of churners who have this attribute; not the churn rate within that group.
+	measure 'Churners with Dependents' = DIVIDE(CALCULATE([Churned Customers], KEEPFILTERS(Customers[Dependents] = "Yes")), [Churned Customers])
+		formatString: 0.00%
+		displayFolder: Overview
+		lineageTag: 519d4ef7-d618-47f9-ac3b-0b5916ac6d01
+
+	/// Share of churners who have this attribute; not the churn rate within that group.
+	measure 'Churners with Partner' = DIVIDE(CALCULATE([Churned Customers], KEEPFILTERS(Customers[Partner] = "Yes")), [Churned Customers])
+		formatString: 0.00%
+		displayFolder: Overview
+		lineageTag: 322a1c0a-d961-4d08-867f-55039767d833
+
+	/// Share of churners who have this attribute; not the churn rate within that group.
+	measure 'Churners with Senior Citizens' = DIVIDE(CALCULATE([Churned Customers], KEEPFILTERS(Customers[Senior Citizen] = "Yes")), [Churned Customers])
+		formatString: 0.00%
+		displayFolder: Overview
+		lineageTag: 7a779b7f-a4b8-4eb5-bd68-29bf0da1c75a
+
+	/// Average Monthly Charges
+	measure 'Average Monthly Charges' = AVERAGE(Customers[MonthlyCharges])
+		formatString: #,0.00
+		displayFolder: Overview
+		lineageTag: 4759d2d4-8317-484c-a566-c98c93928191
+
+	/// Scored Customers
+	measure 'Scored Customers' = CALCULATE([Total Customers], KEEPFILTERS(Customers[Prediction Status] = "Scored"))
+		formatString: #,0
+		displayFolder: Prediction coverage
+		lineageTag: 0eccbeac-f28a-47a6-8293-6c5d17ac75e6
+
+	/// Score Coverage
+	measure 'Score Coverage' = DIVIDE([Scored Customers], [Total Customers])
+		formatString: 0.00%
+		displayFolder: Prediction coverage
+		lineageTag: 5b1d7bd7-5f0b-43e7-ba28-065f1938bdee
+
+	/// High Risk Customers
+	measure 'High Risk Customers' = CALCULATE([Scored Customers], KEEPFILTERS(Customers[Risk Band] = "High"))
+		formatString: #,0
+		displayFolder: Risk
+		lineageTag: eb795be7-cb3d-493b-aad6-2f14770f00e3
+
+	/// Existing saved model probability, blank for customers without a score. In a customer row this is that customer's score.
+	measure 'Predicted Churn Probability' = MAX(Customers[ChurnProbability])
+		formatString: 0.00%
+		displayFolder: Risk
+		lineageTag: 45a6f9f2-6a03-41f1-a585-41df9afc19e9
+
+	/// Average Churn Probability
+	measure 'Average Churn Probability' = AVERAGE(Customers[ChurnProbability])
+		formatString: 0.00%
+		displayFolder: Risk
+		lineageTag: db908b16-8753-4299-bb63-8fbe9431b88a
+
+	/// Customer Monthly Charges
+	measure 'Customer Monthly Charges' = IF(HASONEVALUE(Customers[customerID]), MAX(Customers[MonthlyCharges]))
+		formatString: #,0.00
+		displayFolder: Risk
+		lineageTag: 17d72566-22e0-439b-920f-79c18d3ca3c5
+
+	/// Customer Tenure Months
+	measure 'Customer Tenure Months' = IF(HASONEVALUE(Customers[customerID]), MAX(Customers[tenure]))
+		formatString: 0
+		displayFolder: Risk
+		lineageTag: 26ea5082-6088-4d08-b5ff-b4f4d092f888
+
+	/// Exactly ten scored customers at most, ordered by probability then customer ID to resolve ties.
+	measure 'Top 10 Churn Probability' =
+			VAR Candidates = FILTER(ALLSELECTED(Customers[customerID]), NOT ISBLANK(CALCULATE([Predicted Churn Probability])))
+			VAR TopCustomers = TOPN(10, Candidates, [Predicted Churn Probability], DESC, Customers[customerID], ASC)
+			RETURN IF(HASONEVALUE(Customers[customerID]) && CONTAINS(TopCustomers, Customers[customerID], SELECTEDVALUE(Customers[customerID])), [Predicted Churn Probability])
+		formatString: 0.00%
+		displayFolder: Risk
+		lineageTag: 90bef4ce-2423-4473-a578-cfa47604b5f4
+
+	/// Service Customers
+	measure 'Service Customers' = DISTINCTCOUNT(CustomerServices[customerID])
+		formatString: #,0
+		displayFolder: Service analysis
+		lineageTag: cdb0e6e8-8a62-406a-b79e-80588daef0a4
+
+	/// Service Churned Customers
+	measure 'Service Churned Customers' = CALCULATE([Service Customers], KEEPFILTERS(Customers[Churn] = "Yes"))
+		formatString: #,0
+		displayFolder: Service analysis
+		lineageTag: 16a9d53a-63ff-4b59-9018-df05faf784b0
+
+	/// Service Churn Rate
+	measure 'Service Churn Rate' = DIVIDE([Service Churned Customers], [Service Customers])
+		formatString: 0.00%
+		displayFolder: Service analysis
+		lineageTag: 953cddf9-5030-41d3-afec-0da37bb29a6d
+
+	column customerID
+		dataType: string
+		isKey
+		lineageTag: 97789290-1b28-418c-989d-461a045c0600
+		summarizeBy: none
+		sourceColumn: customerID
+
+	column gender
+		dataType: string
+		lineageTag: 3caf93a0-3b1c-4328-8421-d14be3d71f45
+		summarizeBy: none
+		sourceColumn: gender
+
+	column SeniorCitizen
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 35cd16b0-3233-416f-9347-54aeedf61906
+		summarizeBy: none
+		sourceColumn: SeniorCitizen
+
+	column Partner
+		dataType: string
+		lineageTag: dfd2847f-d454-48b9-b78d-66b28c939720
+		summarizeBy: none
+		sourceColumn: Partner
+
+	column Dependents
+		dataType: string
+		lineageTag: ae56f04c-2dfc-4a7f-b8b3-d67dcd972666
+		summarizeBy: none
+		sourceColumn: Dependents
+
+	column tenure
+		dataType: int64
+		formatString: 0
+		lineageTag: ccffabd8-ddda-4ae9-8f2b-79acf324bbfc
+		summarizeBy: none
+		sourceColumn: tenure
+
+	column PhoneService
+		dataType: string
+		lineageTag: b544eb4c-a46a-4d49-ba74-7495ae4764db
+		summarizeBy: none
+		sourceColumn: PhoneService
+
+	column MultipleLines
+		dataType: string
+		lineageTag: 5f071d41-24c5-474d-9d5d-8f519342ca9b
+		summarizeBy: none
+		sourceColumn: MultipleLines
+
+	column InternetService
+		dataType: string
+		lineageTag: d3df963f-f99d-4166-b780-638939ed032c
+		summarizeBy: none
+		sourceColumn: InternetService
+
+	column OnlineSecurity
+		dataType: string
+		lineageTag: 7517da2e-6a62-4cf9-ab6f-e995e9be57db
+		summarizeBy: none
+		sourceColumn: OnlineSecurity
+
+	column OnlineBackup
+		dataType: string
+		lineageTag: 0fd6a5a1-91db-4771-8ef7-d17e741bac4e
+		summarizeBy: none
+		sourceColumn: OnlineBackup
+
+	column DeviceProtection
+		dataType: string
+		lineageTag: ee676448-767a-4c75-8887-5d4a9945eee6
+		summarizeBy: none
+		sourceColumn: DeviceProtection
+
+	column TechSupport
+		dataType: string
+		lineageTag: 6b532189-149b-4708-ac9f-930617a25fb6
+		summarizeBy: none
+		sourceColumn: TechSupport
+
+	column StreamingTV
+		dataType: string
+		lineageTag: d49a00aa-9471-4eb9-8f98-17e8e8333add
+		summarizeBy: none
+		sourceColumn: StreamingTV
+
+	column StreamingMovies
+		dataType: string
+		lineageTag: 69de05fd-dd19-425e-9f85-cf33c583c69f
+		summarizeBy: none
+		sourceColumn: StreamingMovies
+
+	column Contract
+		dataType: string
+		lineageTag: d5e1bcbe-faa2-4460-a7cc-fdbe309e9aaa
+		summarizeBy: none
+		sourceColumn: Contract
+
+	column PaperlessBilling
+		dataType: string
+		lineageTag: 312acb43-7b34-4a43-8b28-b1925ac88650
+		summarizeBy: none
+		sourceColumn: PaperlessBilling
+
+	column PaymentMethod
+		dataType: string
+		lineageTag: 3be07f3b-4eb4-4ecc-9fb3-46a8f3cd6e14
+		summarizeBy: none
+		sourceColumn: PaymentMethod
+
+	column MonthlyCharges
+		dataType: double
+		formatString: #,0.00
+		lineageTag: 91f72f6d-6fb6-470b-8e90-73d361b87ee6
+		summarizeBy: none
+		sourceColumn: MonthlyCharges
+
+	column TotalCharges
+		dataType: double
+		formatString: #,0.00
+		lineageTag: 834b5c7c-11e8-4590-ba49-803386a2ebd3
+		summarizeBy: none
+		sourceColumn: TotalCharges
+
+	column Churn
+		dataType: string
+		lineageTag: 22d317f4-70d9-40c8-a0fa-a17481aa4d7d
+		summarizeBy: none
+		sourceColumn: Churn
+
+	column ChurnProbability
+		dataType: double
+		formatString: 0.00%
+		lineageTag: 1766799b-3d4a-4870-8573-2b5445b64efe
+		summarizeBy: none
+		sourceColumn: ChurnProbability
+
+	column 'Prediction Status'
+		dataType: string
+		lineageTag: a6501beb-841e-42a2-9a00-6d2336479ecc
+		summarizeBy: none
+		sourceColumn: Prediction Status
+
+	column 'Risk Band'
+		dataType: string
+		lineageTag: 381b587a-289a-4877-8d54-7555ca851203
+		summarizeBy: none
+		sourceColumn: Risk Band
+
+	column 'Senior Citizen'
+		dataType: string
+		lineageTag: 7465d4f3-4a9e-43b1-ae02-130f332f2f88
+		summarizeBy: none
+		sourceColumn: Senior Citizen
+
+	column 'Tenure Band Sort'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 6176057d-b32d-4c45-8d4d-a52c49f3c7f8
+		summarizeBy: none
+		sourceColumn: Tenure Band Sort
+
+	column 'Tenure Band'
+		dataType: string
+		lineageTag: d2146aa4-6edf-45f4-9b8e-c49c7ea1ca0f
+		summarizeBy: none
+		sourceColumn: Tenure Band
+		sortByColumn: 'Tenure Band Sort'
+
+	column 'Monthly Charge Band Sort'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 32d93789-9d97-4f0b-bf6e-eb25e80042e0
+		summarizeBy: none
+		sourceColumn: Monthly Charge Band Sort
+
+	column 'Monthly Charge Band'
+		dataType: string
+		lineageTag: 4ac1ce34-e45a-4566-ba8d-48978883bfcc
+		summarizeBy: none
+		sourceColumn: Monthly Charge Band
+		sortByColumn: 'Monthly Charge Band Sort'
+
+	partition Customers = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(DataFolder & "Telco-Customer-Churn.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    TotalChargesClean = Table.TransformColumns(Headers, {{"TotalCharges", each if _ = null or Text.Trim(_) = "" then 0 else Number.FromText(_, "en-US"), type number}}),
+				    Typed = Table.TransformColumnTypes(TotalChargesClean, {{"customerID", type text}, {"gender", type text}, {"SeniorCitizen", Int64.Type}, {"Partner", type text}, {"Dependents", type text}, {"tenure", Int64.Type}, {"PhoneService", type text}, {"MultipleLines", type text}, {"InternetService", type text}, {"OnlineSecurity", type text}, {"OnlineBackup", type text}, {"DeviceProtection", type text}, {"TechSupport", type text}, {"StreamingTV", type text}, {"StreamingMovies", type text}, {"Contract", type text}, {"PaperlessBilling", type text}, {"PaymentMethod", type text}, {"MonthlyCharges", type number}, {"Churn", type text}}, "en-US"),
+				    Joined = Table.NestedJoin(Typed, {"customerID"}, Predictions, {"customerID"}, "Prediction", JoinKind.LeftOuter),
+				    Expanded = Table.ExpandTableColumn(Joined, "Prediction", {"ChurnProb"}, {"ChurnProbability"}),
+				    Scored = Table.AddColumn(Expanded, "Prediction Status", each if [ChurnProbability] = null then "Not scored" else "Scored", type text),
+				    Risk = Table.AddColumn(Scored, "Risk Band", each if [ChurnProbability] = null then "Not scored" else if [ChurnProbability] >= 0.7 then "High" else if [ChurnProbability] >= 0.4 then "Medium" else "Low", type text),
+				    Senior = Table.AddColumn(Risk, "Senior Citizen", each if [SeniorCitizen] = 1 then "Yes" else "No", type text),
+				    TenureStart = Table.AddColumn(Senior, "Tenure Band Sort", each Number.IntegerDivide([tenure], 10) * 10, Int64.Type),
+				    TenureBand = Table.AddColumn(TenureStart, "Tenure Band", each Text.From([Tenure Band Sort]) & "-" & Text.From([Tenure Band Sort] + 9), type text),
+				    ChargeStart = Table.AddColumn(TenureBand, "Monthly Charge Band Sort", each Number.IntegerDivide([MonthlyCharges], 10) * 10, Int64.Type),
+				    ChargeBand = Table.AddColumn(ChargeStart, "Monthly Charge Band", each Text.From([Monthly Charge Band Sort]) & "-" & Text.From([Monthly Charge Band Sort] + 9), type text)
+				in
+				    ChargeBand
+
+	annotation PBI_ResultType = Table
+

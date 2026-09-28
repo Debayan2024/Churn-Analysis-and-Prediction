@@ -1,0 +1,13 @@
+{
+  "schema_files_validated": 54,
+  "schema_errors": [],
+  "model_tables": [
+    "Customers",
+    "Predictions",
+    "CustomerServices"
+  ],
+  "relationships": 2,
+  "report_field_references_valid": true,
+  "desktop_runtime_validation": "Passed: report opened, local CSVs refreshed, all three pages checked and PBIP saved. See desktop_validation.json.",
+  "schema_validation_scope": "Generated files before Power BI Desktop saved and upgraded their schema versions."
+}

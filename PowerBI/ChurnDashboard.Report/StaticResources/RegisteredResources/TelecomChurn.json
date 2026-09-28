@@ -1,0 +1,31 @@
+{
+  "name": "Telecom Churn",
+  "dataColors": [
+    "#6366FF",
+    "#FF4B16",
+    "#22A699",
+    "#F5B841",
+    "#8C6DDF",
+    "#47A7DD"
+  ],
+  "background": "#FFFFFF",
+  "foreground": "#252942",
+  "tableAccent": "#6366FF",
+  "textClasses": {
+    "title": {
+      "fontFace": "Segoe UI Semibold",
+      "fontSize": 13,
+      "color": "#252942"
+    },
+    "label": {
+      "fontFace": "Segoe UI",
+      "fontSize": 10,
+      "color": "#6B7280"
+    },
+    "callout": {
+      "fontFace": "Segoe UI Semibold",
+      "fontSize": 30,
+      "color": "#252942"
+    }
+  }
+}

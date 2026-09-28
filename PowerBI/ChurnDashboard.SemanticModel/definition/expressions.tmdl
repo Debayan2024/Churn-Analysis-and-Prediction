@@ -1,0 +1,5 @@
+expression DataFolder = "D:/Projects/Churn-Analysis-and-Prediction-main/Data/" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: 09ea65f7-7cf7-409b-8de4-324ece259f37
+
+	annotation PBI_ResultType = Text
+

@@ -1,0 +1,8 @@
+relationship Predictions_Customers
+	fromColumn: Predictions.customerID
+	toColumn: Customers.customerID
+
+relationship Services_Customers
+	fromColumn: CustomerServices.customerID
+	toColumn: Customers.customerID
+

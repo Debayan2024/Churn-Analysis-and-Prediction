@@ -1,0 +1,60 @@
+// Measures already included in the model. Add individually only for a manual rebuild.
+
+Total Customers =
+COUNTROWS(Customers)
+
+Churned Customers =
+CALCULATE([Total Customers], KEEPFILTERS(Customers[Churn] = "Yes"))
+
+Retained Customers =
+CALCULATE([Total Customers], KEEPFILTERS(Customers[Churn] = "No"))
+
+Churn Rate =
+DIVIDE([Churned Customers], [Total Customers])
+
+Churners with Dependents =
+DIVIDE(CALCULATE([Churned Customers], KEEPFILTERS(Customers[Dependents] = "Yes")), [Churned Customers])
+
+Churners with Partner =
+DIVIDE(CALCULATE([Churned Customers], KEEPFILTERS(Customers[Partner] = "Yes")), [Churned Customers])
+
+Churners with Senior Citizens =
+DIVIDE(CALCULATE([Churned Customers], KEEPFILTERS(Customers[Senior Citizen] = "Yes")), [Churned Customers])
+
+Average Monthly Charges =
+AVERAGE(Customers[MonthlyCharges])
+
+Scored Customers =
+CALCULATE([Total Customers], KEEPFILTERS(Customers[Prediction Status] = "Scored"))
+
+Score Coverage =
+DIVIDE([Scored Customers], [Total Customers])
+
+High Risk Customers =
+CALCULATE([Scored Customers], KEEPFILTERS(Customers[Risk Band] = "High"))
+
+Predicted Churn Probability =
+MAX(Customers[ChurnProbability])
+
+Average Churn Probability =
+AVERAGE(Customers[ChurnProbability])
+
+Customer Monthly Charges =
+IF(HASONEVALUE(Customers[customerID]), MAX(Customers[MonthlyCharges]))
+
+Customer Tenure Months =
+IF(HASONEVALUE(Customers[customerID]), MAX(Customers[tenure]))
+
+Top 10 Churn Probability =
+VAR Candidates = FILTER(ALLSELECTED(Customers[customerID]), NOT ISBLANK(CALCULATE([Predicted Churn Probability])))
+VAR TopCustomers = TOPN(10, Candidates, [Predicted Churn Probability], DESC, Customers[customerID], ASC)
+RETURN IF(HASONEVALUE(Customers[customerID]) && CONTAINS(TopCustomers, Customers[customerID], SELECTEDVALUE(Customers[customerID])), [Predicted Churn Probability])
+
+Service Customers =
+DISTINCTCOUNT(CustomerServices[customerID])
+
+Service Churned Customers =
+CALCULATE([Service Customers], KEEPFILTERS(Customers[Churn] = "Yes"))
+
+Service Churn Rate =
+DIVIDE([Service Churned Customers], [Service Customers])

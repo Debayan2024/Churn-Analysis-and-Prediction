@@ -1,0 +1,23 @@
+{
+  "source_customers": 7043,
+  "historical_churned": 1869,
+  "historical_churn_rate": 0.2653698707936959,
+  "blank_TotalCharges_replaced_with_zero": 11,
+  "scored_customers": 2113,
+  "unscored_customers": 4930,
+  "prediction_coverage": 0.3000141984949595,
+  "churners_with_dependents": 0.17442482611021937,
+  "churners_with_partner": 0.3579454253611557,
+  "churners_who_are_seniors": 0.2546816479400749,
+  "default_worklist_customers": 1539,
+  "default_worklist_high_risk": 26,
+  "service_rows": 84516,
+  "pages": 3,
+  "visuals": 45,
+  "measures": 19,
+  "max_score": 0.91283286,
+  "source_sha256": {
+    "Telco-Customer-Churn.csv": "88be4b93fbe0cc83421af1c503794c97c342eca914c1576db7c276e61d61358a",
+    "results.csv": "46a562aaf5dfcda31ecd02a5ae4958cba4d0b3fc72f58608bf0856c28324a6ca"
+  }
+}

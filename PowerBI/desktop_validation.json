@@ -1,0 +1,31 @@
+{
+  "power_bi_desktop_version": "2.157.1354.0 (Microsoft Store)",
+  "project_opened_in_desktop": true,
+  "refresh_completed": true,
+  "project_saved_with_data_cache": true,
+  "pages_checked": [
+    "01 | Churn overview",
+    "02 | Customer risk list",
+    "03 | Service analysis"
+  ],
+  "observed_overview": {
+    "total_customers": 7043,
+    "churned_customers": 1869,
+    "churn_rate": "26.54%",
+    "scored_customers": 2113,
+    "prediction_coverage": "30.00%"
+  },
+  "observed_worklist": {
+    "scored_customers": 1539,
+    "high_risk_customers": 26,
+    "average_probability": "18.54%"
+  },
+  "default_service": "Streaming movies",
+  "observed_service_churn_rates": {
+    "No": "33.68%",
+    "Yes": "29.94%",
+    "No internet service": "7.40%"
+  },
+  "pbix_copy_created": false,
+  "note": "The PBIP project is loaded, refreshed and saved. A standalone PBIX can be created using File > Save as > Browse this device, choosing Power BI Desktop file (*.pbix)."
+}
